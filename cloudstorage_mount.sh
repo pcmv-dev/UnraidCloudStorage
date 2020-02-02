@@ -9,7 +9,7 @@
 #### Set Variables ####
 remote="googledrive:" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
 vault="unraidshare" # Unraid share name
-share="/mnt/user/media/$vault" # Unraid share location
+share="/mnt/user/$vault" # Unraid share location
 data="/mnt/user/rclonedata/$vault" # Rclone data folder location
 #### End Set Variables ####
 

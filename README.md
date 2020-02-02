@@ -39,7 +39,8 @@ password = **********
 password2 = **********
 ```
 
-- :heavy_exclamation_mark: Create mountcheck files :heavy_exclamation_mark:
+### :heavy_exclamation_mark: Create mountcheck files :heavy_exclamation_mark:
+
 - This is an important step or your mount script will fail
 - Open the terminal from Unraid Webui or SSH into your server and run the following:
 

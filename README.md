@@ -45,15 +45,15 @@ password2 = **********
 
 
 ```
-touch mountcheck
-rclone copy mountcheck googledrive_encrypted: -vv --no-traverse
+root@unraid:# touch mountcheck
+root@unraid:# rclone copy mountcheck googledrive_encrypted: -vv --no-traverse
 ```
 
 ![Mountcheck](screenshots/dashboard.png)
 
 ## Rclone Mount Script
 
-Configure the <strong>cloudstorage_mount</strong> script. You only need to configure the "Set Variables" section
+- Configure the <strong>cloudstorage_mount</strong> script. You only need to configure the "Set Variables" section
 
 ```
 #### Set Variables ####
@@ -63,11 +63,12 @@ share="/mnt/user/media/$vault" # Unraid share location
 data="/mnt/user/rclonedata/$vault" # Rclone data folder location
 #### End Set Variables ####
 ```
-Set a schedule to run the script (10min - hourly)
+- Set a schedule to run the script (10min - hourly)
+- [Crontab Calculator](https://crontab.guru/)
 
 ### Rclone Unmount Script
 
-Configure the <strong>cloudstorage_unmount</strong> script. You only need to configure the "Set Variables" section
+- Configure the <strong>cloudstorage_unmount</strong> script. You only need to configure the "Set Variables" section
 
 ```
 #### Set Variables ####
@@ -76,10 +77,11 @@ share="/mnt/user/media/$vault" # Unraid share location
 data="/mnt/user/rclonedata/$vault" # Rclone data folder location
 #### End Set Variables ####
 ```
+- Set a schedule to run at array startup. Note: I sometimes manually trigger this script to unmount when you need to stop the array as this will make it hang and the solutions are reboot or terminal command "pkill rclone"
 
 ### Rclone Upload Script
 
-Configure the <strong>cloudstorage_upload</strong> script. You only need to configure the "Set Variables" section
+- Configure the <strong>cloudstorage_upload</strong> script. You only need to configure the "Set Variables" section
 
 ```
 #### Set Variables ####
@@ -90,7 +92,7 @@ share="/mnt/user/media/$vault" # Unraid share location
 data="/mnt/user/rclonedata/$vault" # Rclone data folder location
 #### End Set Variables ####
 ```
-
+- Set a schedule to run the script whenever you feel is a good time. For me it is midnight (0 00 * * *)
 ## Support
 
 I am only a novice when it comes to scripting so for help and support please visit the forum for help

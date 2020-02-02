@@ -49,7 +49,7 @@ root@unraid:# touch mountcheck
 root@unraid:# rclone copy mountcheck googledrive_encrypted: -vv --no-traverse
 ```
 
-![Mountcheck](screenshots/dashboard.png)
+![Mountcheck](Screenshots/mountcheck.png)
 
 ## Rclone Mount Script
 

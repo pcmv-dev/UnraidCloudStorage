@@ -1,7 +1,7 @@
 <center>
 <h1 align="center">UnraidCloudStorage</h1>
 <h4 align="center">Mount rclone cloud storage drives for use in "Sonarr,Radarr,Plex,etc"</h4>
-<h5 align="Center"><strong>2/1/2020 - Version 1.0</strong>
+<h5 align="Center"><strong>2/01/2020 - Version 1.0</strong>
 </center>
 
 ## Info

@@ -51,7 +51,7 @@ rclone mount \
 --vfs-cache-mode writes \
 $remote $data/rclone_mount &
 
-# Check if mount successful with slight pause to give mount time to finalise
+# Check and wait if mount successful
 echo "INFO: $(date "+%m/%d/%Y %r") - Mount in progress please wait..."
 sleep 5
 echo "INFO: $(date "+%m/%d/%Y %r") - Proceeding..."

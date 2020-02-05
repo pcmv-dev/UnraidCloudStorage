@@ -8,10 +8,10 @@
 
 #### Set Variables ####
 remote="googledrive" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
-vault="unraidshare" # Unraid share name
+vault="unraidshare" # Unraid share name NOTE: The name you want to give your share
 uploadlimit="1.25M" # Set your upload speed Ex. 10Mbps is 1.25M (Megabytes/s)
-share="/mnt/user/$vault" # Unraid share location
-data="/mnt/user/rclonedata/$vault" # Rclone data folder location
+share="/mnt/user/$vault" # Unraid share location NOTE: This is where you point "Sonarr,Radarr,Plex,etc" for media
+data="/mnt/user/rclonedata/$vault" # Rclone data folder location NOTE: Best not to touch this or map anything here
 #### End Set Variables ####
 
 # Show installed Rclone version

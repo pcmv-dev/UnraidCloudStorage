@@ -1,12 +1,21 @@
 <center>
 <h1 align="center">UnraidCloudStorage</h1>
 <h4 align="center">Mount rclone cloud storage drives for use in "Sonarr,Radarr,Plex,etc"</h4>
-<h5 align="Center"><strong>2/01/2020 - Version 1.0</strong>
+<h5 align="Center"><strong>02/05/2020 - Version 1.1</strong>
 </center>
 
 ## Info
 
-These are modified scripts from [BinsonBuzz/unraid_rclone_mount](https://github.com/BinsonBuzz/unraid_rclone_mount). The difference is that I setup some variables in the scripts to make it easier to configure and my goal to setup several cloud storage mounts.
+These are modified scripts from [BinsonBuzz/unraid_rclone_mount](https://github.com/BinsonBuzz/unraid_rclone_mount). Scripts are updated from source with some features not included. I only implement what I would use.
+
+### Features Not Used
+
+- Bandwidth Time Limits
+- IP Binding
+- Multiple Upload Remotes
+- Docker Autostart
+
+NOTE: If you need these features please grab the original scripts.
 
 ### Prerequisites
 
@@ -15,7 +24,7 @@ NOTE: These are meant for UNRAID
 - Rclone-Beta/Stable [INSTALL](https://forums.unraid.net/topic/51633-plugin-rclone/)
 - CA User Scripts [INSTALL](https://forums.unraid.net/topic/48286-plugin-ca-user-scripts/)
 
-### Configure Rclone Remotes
+## Configure Rclone Remotes
 
 - Create your rclone.conf
 - I assume most use Google Drive so make sure you create your own client_id [INSTRUCTIONS HERE](https://rclone.org/drive/#making-your-own-client-id)
@@ -39,61 +48,53 @@ password = **********
 password2 = **********
 ```
 
-### :heavy_exclamation_mark: Create mountcheck files :heavy_exclamation_mark:
-
-- This is an important step or your mount script will fail
-- Open the terminal from Unraid Webui or SSH into your server and run the following:
-
-
-```
-root@unraid:# touch mountcheck
-root@unraid:# rclone copy mountcheck googledrive_encrypted: -vv --no-traverse
-```
-
-![Mountcheck](Screenshots/mountcheck.png)
-
 ## Rclone Mount Script
 
 - Configure the <strong>cloudstorage_mount</strong> script. You only need to configure the "Set Variables" section
 
 ```
 #### Set Variables ####
-remote="googledrive:" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
-vault="unraidshare" # Unraid share name
-share="/mnt/user/media/$vault" # Unraid share location
-data="/mnt/user/rclonedata/$vault" # Rclone data folder location
-#### End Set Variables ####
+remote="googledrive" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
+vault="unraidshare" # Unraid share name NOTE: The name you want to give your share
+share="/mnt/user/$vault" # Unraid share location NOTE: This is where you point "Sonarr,Radarr,Plex,etc" for media
+data="/mnt/user/rclonedata/$vault" # Rclone data folder location NOTE: Best not to touch this or map anything here
 ```
 - Set a schedule to run the script (10min - hourly)
 - [Crontab Calculator](https://crontab.guru/)
 
-### Rclone Unmount Script
+## Rclone Unmount Script
 
 - Configure the <strong>cloudstorage_unmount</strong> script. You only need to configure the "Set Variables" section
 
 ```
 #### Set Variables ####
-vault="unraidshare" # Unraid share name
-share="/mnt/user/media/$vault" # Unraid share location
-data="/mnt/user/rclonedata/$vault" # Rclone data folder location
+vault="unraidshare" # Unraid share name NOTE: The name you want to give your share
+share="/mnt/user/$vault" # Unraid share location NOTE: This is where you point "Sonarr,Radarr,Plex,etc" for media
+data="/mnt/user/rclonedata/$vault" # Rclone data folder location NOTE: Best not to touch this or map anything here
 #### End Set Variables ####
 ```
 - Set a schedule to run at array startup. Note: I sometimes manually trigger this script to unmount when you need to stop the array as this will make it hang and the solutions are reboot or terminal command "pkill rclone"
 
-### Rclone Upload Script
+## Rclone Upload Script
 
 - Configure the <strong>cloudstorage_upload</strong> script. You only need to configure the "Set Variables" section
 
 ```
 #### Set Variables ####
-remote="googledrive:" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
-vault="unraidshare" # Unraid share name
+remote="googledrive" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
+vault="unraidshare" # Unraid share name NOTE: The name you want to give your share
 uploadlimit="1.25M" # Set your upload speed Ex. 10Mbps is 1.25M (Megabytes/s)
-share="/mnt/user/media/$vault" # Unraid share location
-data="/mnt/user/rclonedata/$vault" # Rclone data folder location
+share="/mnt/user/$vault" # Unraid share location NOTE: This is where you point "Sonarr,Radarr,Plex,etc" for media
+data="/mnt/user/rclonedata/$vault" # Rclone data folder location NOTE: Best not to touch this or map anything here
 #### End Set Variables ####
 ```
 - Set a schedule to run the script whenever you feel is a good time. For me it is midnight (0 00 * * *)
+
+## Changelog
+
+- v1.1 - Integrated mountcheck and Logging changes
+- v1.0 - Initial Scripts
+
 ## Support
 
 I am only a novice when it comes to scripting so for help and support please visit the forum for help

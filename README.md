@@ -58,6 +58,7 @@ remote="googledrive" # Name of rclone remote mount NOTE: Choose your encrypted r
 vault="unraidshare" # Unraid share name NOTE: The name you want to give your share
 share="/mnt/user/$vault" # Unraid share location NOTE: This is where you point "Sonarr,Radarr,Plex,etc" for media
 data="/mnt/user/rclonedata/$vault" # Rclone data folder location NOTE: Best not to touch this or map anything here
+#### End Set Variables ####
 ```
 - Set a schedule to run the script (10min - hourly)
 - [Crontab Calculator](https://crontab.guru/)

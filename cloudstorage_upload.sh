@@ -36,7 +36,7 @@ fi
 if [[ -f "$data/rclone_mount/mountcheck" ]]; then
 echo "SUCCESS: $(date "+%m/%d/%Y %r") - Check Passed! \""${vault}\"" is mounted, proceeding with upload"
 else
-echo "ERROR: $(date "+%m/%d/%Y %X") - Check Failed! \""${vault}\"" is not mounted, please check your configuration"
+echo "ERROR: $(date "+%m/%d/%Y %r") - Check Failed! \""${vault}\"" is not mounted, please check your configuration"
 rm $data/rclone_upload_running
 echo
 exit
@@ -68,7 +68,7 @@ echo "######################"
 
 # Cleanup tracking files
 rm $data/rclone_upload_running
-echo "SUCCESS: $(date "+%m/%d/%Y %X") - Upload Complete"
+echo "SUCCESS: $(date "+%m/%d/%Y %r") - Upload Complete"
 #### End rclone upload ####
 echo
 exit

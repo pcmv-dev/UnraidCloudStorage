@@ -3,56 +3,56 @@
 #######################
 #### Upload Script ####
 #######################
-####  Version 1.1  ####
+####  Version 1.2  ####
 #######################
 
-#### Set Variables ####
+# CONFIGURE
 remote="googledrive" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
-vault="unraidshare" # Unraid share name NOTE: The name you want to give your share
-uploadlimit="1.25M" # Set your upload speed Ex. 10Mbps is 1.25M (Megabytes/s)
-share="/mnt/user/$vault" # Unraid share location NOTE: This is where you point "Sonarr,Radarr,Plex,etc" for media
-data="/mnt/user/rclonedata/$vault" # Rclone data folder location NOTE: Best not to touch this or map anything here
-#### End Set Variables ####
+media="unraidshare" # Unraid share name NOTE: The name you want to give your share mount
+mediaroot="/mnt/user" # Unraid share location
+uploadlimit="75M" # Set your upload speed Ex. 10Mbps is 1.25M (Megabytes/s)
 
-# Show installed Rclone version
-echo "#### RCLONE VERSION ####"
-echo
+#########################################
+#### DO NOT EDIT ANYTHING BELOW THIS ####
+#########################################
+
+# Create location variables
+appdata="/mnt/user/appdata/rclonedata/$media" # Rclone data folder location NOTE: Best not to touch this or map anything here
+rcloneupload="$appdata/rclone_upload" # Staging folder of files to be uploaded
+rclonemount="$appdata/rclone_mount" # Rclone mount folder
+mergerfsmount="$mediaroot/$media" # Media share location
+
+# Check if script is already running
+echo "------------------"
 rclone version
-echo
-echo "########################"
-echo
-#### Check if script is already running ####
-echo "INFO: $(date "+%m/%d/%Y %r") - STARTING UPLOAD SCRIPT for \""${vault}\"""
-if [[ -f "$data/rclone_upload_running" ]]; then
-echo "WARN: $(date "+%m/%d/%Y %r") - Upload already in progress!"
-echo
-exit
+echo "------------------"
+echo "INFO: $(date "+%m/%d/%Y %r") - ==== STARTING UPLOAD SCRIPT ===="
+if [[ -f "$appdata/rclone_upload_running" ]]; then
+    echo "WARN: $(date "+%m/%d/%Y %r") - Upload already in progress!"
+    exit
 else
-touch $data/rclone_upload_running
+    touch $appdata/rclone_upload_running
 fi
-#### End Check if script is already running ####
 
-#### Check if rclone mount created ####
-if [[ -f "$data/rclone_mount/mountcheck" ]]; then
-echo "SUCCESS: $(date "+%m/%d/%Y %r") - Check Passed! \""${vault}\"" is mounted, proceeding with upload"
+# Check if rclone mount created
+if [[ -f "$rclonemount/mountcheck" ]]; then
+    echo "SUCCESS: $(date "+%m/%d/%Y %r") - Check Passed! \""${media}\"" is mounted, proceeding with upload"
 else
-echo "ERROR: $(date "+%m/%d/%Y %r") - Check Failed! \""${vault}\"" is not mounted, please check your configuration"
-rm $data/rclone_upload_running
-echo
-exit
+    echo "ERROR: $(date "+%m/%d/%Y %r") - Check Failed! \""${media}\"" is not mounted, please check your configuration"
+    rm $appdata/rclone_upload_running
+    exit
 fi
-#### End check if rclone mount created ####
 
-#### Rclone upload flags ####
-echo "#### RCLONE DEBUG ####"
-echo
-rclone move $data/rclone_upload/ $remote: \
+# Rclone upload flags
+echo "==== RCLONE DEBUG ===="
+rclone move $rcloneupload/ $remote: \
+--user-agent="$remote" \
 --log-level INFO \
 --buffer-size 512M \
 --drive-chunk-size 512M \
---tpslimit 3 \
---checkers 3 \
---transfers 2 \
+--tpslimit 8 \
+--checkers 8 \
+--transfers 4 \
 --order-by modtime,ascending \
 --exclude downloads/** \
 --exclude .Recycle.Bin/** \
@@ -63,12 +63,11 @@ rclone move $data/rclone_upload/ $remote: \
 --exclude *.partial~*  \
 --delete-empty-src-dirs \
 --bwlimit $uploadlimit \
+--drive-stop-on-upload-limit \
 --min-age 10m
-echo "######################"
+echo "======================"
 
-# Cleanup tracking files
-rm $data/rclone_upload_running
+# Remove tracking files
+rm $appdata/rclone_upload_running
 echo "SUCCESS: $(date "+%m/%d/%Y %r") - Upload Complete"
-#### End rclone upload ####
-echo
 exit

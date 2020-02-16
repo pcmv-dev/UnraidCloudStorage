@@ -3,42 +3,47 @@
 ########################
 #### Unmount Script ####
 ########################
-####  Version 1.1  #####
+####  Version 1.2  #####
 ########################
 
-#### Set Variables ####
-vault="unraidshare" # Unraid share name NOTE: The name you want to give your share
-share="/mnt/user/$vault" # Unraid share location NOTE: This is where you point "Sonarr,Radarr,Plex,etc" for media
-data="/mnt/user/rclonedata/$vault" # Rclone data folder location NOTE: Best not to touch this or map anything here
-#### End Set Variables ####
+# CONFIGURE
+media="unraidshare" # Unraid share name NOTE: The name you want to give your share mount
+mediaroot="/mnt/user" # Unraid share location
 
-#### Start unmount script ####
-# unmount to be safe
-echo "INFO: $(date "+%m/%d/%Y %r") - STARTING UNMOUNT SCRIPT for \""${vault}\"""
-echo "INFO: $(date "+%m/%d/%Y %r") - Unmount remote from \""$data/rclone_mount\"""
-fusermount -uz $data/rclone_mount
+#########################################
+#### DO NOT EDIT ANYTHING BELOW THIS ####
+#########################################
+
+# Create location variables
+appdata="/mnt/user/appdata/rclonedata/$media" # Rclone data folder location NOTE: Best not to touch this or map anything here
+rcloneupload="$appdata/rclone_upload" # Staging folder of files to be uploaded
+rclonemount="$appdata/rclone_mount" # Rclone mount folder
+mergerfsmount="$mediaroot/$media" # Media share location
+
+# Unmount Rclone and Mergerfs
+fusermount -u $rclonemount >/dev/null 2>&1
+fusermount -u $mergerfsmount >/dev/null 2>&1
+
 # Remove empty folders
-if [[ "$(ls $data/)" != "" ]]; then
-echo "INFO: $(date "+%m/%d/%Y %r") - Removing empty directories in \""$data\"""
-rmdir $data/rclone_mount & rmdir $data/rclone_upload & rmdir $data/mergerfs
+echo "INFO: $(date "+%m/%d/%Y %r") - ==== STARTING UNMOUNT SCRIPT ===="
+if [ "$(ls $appdata/)" != "" ]; then
+    echo "INFO: $(date "+%m/%d/%Y %r") - Removing empty directories in \""$appdata\"""
+    rmdir $rclonemount >/dev/null 2>&1 & rmdir $rcloneupload >/dev/null 2>&1
 else
-echo "SUCCESS: $(date "+%m/%d/%Y %r") - No empty directories to remove"
+    echo "SUCCESS: $(date "+%m/%d/%Y %r") - No empty directories to remove"
 fi
-#### End unmount script ####
 
-#### Cleanup tracking files ####
-if [[ -f "$data/rclone_mount_running" ]]; then
-echo "INFO: $(date "+%m/%d/%Y %r") - Rclone mount file detected, removing tracking file"
-rm $data/rclone_mount_running
+# Cleanup tracking files
+if [ -f "$appdata/rclone_mount_running" ]; then
+    echo "INFO: $(date "+%m/%d/%Y %r") - Rclone mount file detected, removing tracking file"
+    rm $appdata/rclone_mount_running >/dev/null 2>&1
 else
-echo "SUCCESS: $(date "+%m/%d/%Y %r") - Rclone mount exited properly"
+    echo "SUCCESS: $(date "+%m/%d/%Y %r") - Rclone mount exited properly"
 fi
-if [[ -f "$data/rclone_upload_running" ]]; then
-echo "INFO: $(date "+%m/%d/%Y %r") - Rclone upload file detected, removing tracking file"
-rm $data/rclone_upload_running
+if [ -f "$apdata/rclone_upload_running" ]; then
+    echo "INFO: $(date "+%m/%d/%Y %r") - Rclone upload file detected, removing tracking file"
+    rm $appdata/rclone_upload_running >/dev/null 2>&1
 else
-echo "SUCCESS: $(date "+%m/%d/%Y %r") - Rclone upload exited properly"
+    echo "SUCCESS: $(date "+%m/%d/%Y %r") - Rclone upload exited properly"
 fi
-#### End cleanup tracking files ####
-echo
 exit

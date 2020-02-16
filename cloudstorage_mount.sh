@@ -88,8 +88,9 @@ else
     else
         echo "INFO: $(date "+%m/%d/%Y %r") - Installing Mergerfs, please wait..."
         # Install mergerfs docker
+        mkdir -p $appdata/mergerfs
         docker run -v $appdata/mergerfs:/build --rm trapexit/mergerfs-static-build >/dev/null 2>&1
-        mv $appdata/mergerfs /bin
+        mv $appdata/mergerfs/mergerfs /bin
     fi
     
     # Create mergerfs mount

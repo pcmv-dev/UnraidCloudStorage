@@ -1,7 +1,7 @@
 <center>
 <h1 align="center">UnraidCloudStorage</h1>
 <h4 align="center">Mount rclone cloud storage drives for use in "Sonarr,Radarr,Plex,etc"</h4>
-<h5 align="Center"><strong>02/16/2020 - Version 1.2</strong>
+<h5 align="Center"><strong>03/03/2020 - Version 1.3</strong>
 </center>
 
 ## Info
@@ -12,7 +12,6 @@ These are modified scripts from [BinsonBuzz/unraid_rclone_mount](https://github.
 
 - Bandwidth Time Limits
 - IP Binding
-- Service Account Rotation
 - Docker Autostart
 - Backup Job
 
@@ -31,7 +30,7 @@ NOTE: These are meant for UNRAID
 - I assume most use Google Drive so make sure you create your own client_id [INSTRUCTIONS HERE](https://rclone.org/drive/#making-your-own-client-id)
 - Watch Spaceinvador One video for more help [WATCH HERE](https://youtu.be/-b9Ow2iX2DQ)
 
-```
+```bash
 [googledrive]
 type = drive
 client_id = **********
@@ -51,22 +50,22 @@ password2 = **********
 
 ## Rclone Mount Script
 
-- Configure the <strong>cloudstorage_mount</strong> script. You only need to modify the "CONFIGURE" section
+- Configure the **rclone-mount** script. You only need to modify the "CONFIGURE" section
 
-```
+```bash
 # CONFIGURE
-remote="googledrive" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
-media="unraidshare" # Unraid share name NOTE: The name you want to give your share mount
-mediaroot="/mnt/user" # Unraid share location
+REMOTE="googledrive" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
+MEDIA="media" # Local share name NOTE: The name you want to give your share mount
+MEDIAROOT="/mnt/user" # Local share directory
 ```
 - Set a schedule to run the script 10min, hourly, or when you would like to begin upload
 - [Crontab Calculator](https://corntab.com/)
 
 ## Rclone Unmount Script
 
-- Configure the <strong>cloudstorage_unmount</strong> script. You only need to modify the "CONFIGURE" section
+- Configure the **rclone-unmount** script. You only need to modify the "CONFIGURE" section
 
-```
+```bash
 # CONFIGURE
 media="unraidshare" # Unraid share name NOTE: The name you want to give your share mount
 mediaroot="/mnt/user" # Unraid share location
@@ -75,19 +74,32 @@ mediaroot="/mnt/user" # Unraid share location
 
 ## Rclone Upload Script
 
-- Configure the <strong>cloudstorage_upload</strong> script. You only need to modify the "CONFIGURE" section
+- Configure the **rclone-upload** script. You only need to modify the "CONFIGURE" section
 
-```
+```bash
 # CONFIGURE
-remote="googledrive" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
-media="unraidshare" # Unraid share name NOTE: The name you want to give your share mount
-mediaroot="/mnt/user" # Unraid share location
-uploadlimit="75M" # Set your upload speed Ex. 10Mbps is 1.25M (Megabytes/s)
+REMOTE="googledrive" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
+UPLOADREMOTE="googledrive_upload" # If you have a second remote created for uploads put it here. Otherwise use the same remote as REMOTE
+MEDIA="media" # Local share name NOTE: The name you want to give your share mount
+MEDIAROOT="/mnt/user" # Local share directory
+UPLOADLIMIT="75M" # Set your upload speed Ex. 10Mbps is 1.25M (Megabytes/s)
+
+# SERVICE ACCOUNTS
+# Drop your .json files in your "appdata/rclonedata/service_accounts"
+# Name them "sa_account01.json" "sa_account02.json" etc.
+USESERVICEACCOUNT="N" # Y/N. Choose whether to use Service Accounts NOTE: Bypass Google 750GB upload limit
+SERVICEACCOUNTNUM="15" # Integer number of service accounts to use.
+
+# DISCORD NOTIFICATIONS
+DISCORD_WEBHOOK_URL="" # Enter your Discord Webhook URL for notifications. Otherwise leave empty to disable
+DISCORD_ICON_OVERRIDE="https://raw.githubusercontent.com/rclone/rclone/master/graphics/logo/logo_symbol/logo_symbol_color_256px.png" # The poster user image
+DISCORD_NAME_OVERRIDE="RCLONE" # The poster user name
 ```
 - Set a schedule to run the script whenever you feel is a good time. For me it is midnight (0 00 * * *)
 
 ## Changelog
 
+- v1.3 - Discord Webhook Notifications, Service Accounts
 - v1.2 - Code revision and less configuration
 - v1.1 - Integrated mountcheck and Logging changes
 - v1.0 - Initial Scripts

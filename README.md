@@ -66,9 +66,9 @@ MEDIAROOT="/mnt/user" # Local share directory
 - Configure the **rclone-unmount** script. You only need to modify the "CONFIGURE" section
 
 ```bash
-# CONFIGURE
-media="unraidshare" # Unraid share name NOTE: The name you want to give your share mount
-mediaroot="/mnt/user" # Unraid share location
+#### Configuration ####
+MEDIA="media" # Local share name NOTE: The name you want to give your share mount
+MEDIAROOT="/mnt/user" # Local share directory
 ```
 - Set a schedule to run at array startup. Note: You can manually trigger the unmount if needed
 

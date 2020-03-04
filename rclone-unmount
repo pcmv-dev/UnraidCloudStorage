@@ -54,7 +54,7 @@ else
 fi
 if [ -n "$(ls -A $RCLONEUPLOAD)" ]; then
     echo "$(date "+%d/%m/%Y %T") INFO: There are files pending upload"
-
+    rmdir $RCLONEUPLOAD >/dev/null
 else
     echo "$(date "+%d/%m/%Y %T") INFO: Removing Mergerfs local files folder"
 fi

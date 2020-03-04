@@ -89,7 +89,7 @@ else
     if [ -n "$(ls -A $MERGERFSMOUNT)" ]; then
         echo "$(date "+%d/%m/%Y %T") SUCCESS: Check Passed! Your Cloud Drive is mounted"
         echo "==== REMOTE DIRECTORIES ===="
-        rclone lsd $REMOTE: --config $RCLONECONF
+        rclone lsd $REMOTE:
         echo "============================"
     else
         echo "$(date "+%d/%m/%Y %T") ERROR: Check Failed! Your Cloud Drive failed to mount, please check your configuration"

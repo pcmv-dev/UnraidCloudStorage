@@ -66,7 +66,7 @@ MEDIAROOT="/mnt/user" # Local share directory
 - Configure the **rclone-unmount** script. You only need to modify the "CONFIGURE" section
 
 ```bash
-#### Configuration ####
+# CONFIGURE
 MEDIA="media" # Local share name NOTE: The name you want to give your share mount
 MEDIAROOT="/mnt/user" # Local share directory
 ```

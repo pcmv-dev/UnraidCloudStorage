@@ -28,7 +28,7 @@ DISCORD_NAME_OVERRIDE="RCLONE" # The poster user name
 #### DO NOT EDIT ANYTHING BELOW THIS ####
 #########################################
 # Create location variables
-APPDATA="$MEDIAROOT/appdata/rclonedata/$MEDIA" # Rclone data folder location
+APPDATA="/mnt/user/appdata/rclonedata/$MEDIA" # Rclone data folder location
 RCLONEUPLOAD="$APPDATA/rclone_upload" # Staging folder of files to be uploaded NOTE: Local files
 RCLONEMOUNT="$APPDATA/rclone_mount" # Rclone mount folder NOTE: Do not drop files here, it is unreliable
 MERGERFSMOUNT="$MEDIAROOT/$MEDIA" # Local share location NOTE: This is where your files go

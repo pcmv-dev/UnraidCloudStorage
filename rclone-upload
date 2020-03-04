@@ -35,7 +35,7 @@ MERGERFSMOUNT="$MEDIAROOT/$MEDIA" # Local share location NOTE: This is where you
 LOCKFILE="$APPDATA/upload.lock" # Rclone upload lock file
 SERVICEACCOUNTDIR="$MEDIAROOT/appdata/rclonedata/service_accounts" # Path to your Service Account's .json files
 SERVICEACCOUNTFILE="sa_account" # Service Account file name without "00.json"
-LOGFILE="$MEDIAROOT/logs/rclone-upload.log" # Log file for upload
+LOGFILE="$APPDATA/rclone-upload.log" # Log file for upload
 
 # Check if script is already running
 echo " ==== STARTING UPLOAD SCRIPT ===="

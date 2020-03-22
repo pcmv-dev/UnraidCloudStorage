@@ -1,10 +1,10 @@
 #!/bin/bash
 
-######################
-#### Mount Script ####
-######################
-#### Version 1.3  ####
-######################
+#######################
+#### Mount Script  ####
+#######################
+#### Version 1.3.1 ####
+#######################
 
 # CONFIGURE
 REMOTE="googledrive" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data

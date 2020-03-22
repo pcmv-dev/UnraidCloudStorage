@@ -196,5 +196,6 @@ fi
 
 # Remove lock file
 rm -f $LOCKFILE
+chown 99:100 $LOGFILE
 echo "$(date "+%d/%m/%Y %T") SUCCESS: Upload Complete"
 exit

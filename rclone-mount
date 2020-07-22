@@ -21,7 +21,7 @@ RCLONEUPLOAD="$APPDATA/rclone_upload" # Staging folder of files to be uploaded
 RCLONEMOUNT="$APPDATA/rclone_mount" # Rclone mount folder
 MERGERFSMOUNT="$MEDIAROOT/$MEDIA" # Media share location
 LOCKFILE="$APPDATA/mount.lock" # Rclone mount lock file
-MERGERFSOPTIONS="rw,async_read=false,use_ino,allow_other,func.getattr=newest,category.action=all,category.create=ff,cache.files=partial,dropcacheonclose=true" # Mergerfs mount options
+MERGERFSOPTIONS="rw,use_ino,allow_other,func.getattr=newest,category.action=all,category.create=ff,cache.files=auto-full" # Mergerfs mount options
 
 # Create directories
 mkdir -p $APPDATA $RCLONEUPLOAD $RCLONEMOUNT $MERGERFSMOUNT
@@ -43,7 +43,7 @@ else
     echo "$(date "+%d/%m/%Y %T") INFO: Mounting Rclone, please wait..."
     # Rclone mount command and flags
     rclone mount \
-    --log-level ERROR \
+    --log-level INFO \
     --allow-other \
     --dir-cache-time 1000h \
     --buffer-size 256M \

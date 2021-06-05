@@ -3,13 +3,16 @@
 #######################
 #### Mount Script  ####
 #######################
-#### Version 1.3.1 ####
+#### Version 1.3.2 ####
 #######################
 
 # CONFIGURE
 REMOTE="googledrive" # Name of rclone remote mount NOTE: Choose your encrypted remote for sensitive data
 MEDIA="media" # Local share name NOTE: The name you want to give your share mount
 MEDIAROOT="/mnt/user" # Local share directory
+USECACHE="false" # Use local caching, true or false
+CACHESIZE="50G" # The max size of the cache
+CACHEMAXAGE="336h" # The max age of the cache files
 
 #########################################
 #### DO NOT EDIT ANYTHING BELOW THIS ####
@@ -20,70 +23,96 @@ APPDATA="/mnt/user/appdata/rclonedata/$MEDIA" # Rclone data folder location NOTE
 RCLONEUPLOAD="$APPDATA/rclone_upload" # Staging folder of files to be uploaded
 RCLONEMOUNT="$APPDATA/rclone_mount" # Rclone mount folder
 MERGERFSMOUNT="$MEDIAROOT/$MEDIA" # Media share location
+CACHEDIR="$APPDATA/rclone_cache" # Rclone cache location
 LOCKFILE="$APPDATA/mount.lock" # Rclone mount lock file
-MERGERFSOPTIONS="rw,use_ino,allow_other,func.getattr=newest,category.action=all,category.create=ff,cache.files=auto-full" # Mergerfs mount options
+MERGERFSOPTIONS="rw,async_read=false,use_ino,allow_other,func.getattr=newest,category.action=all,category.create=ff,cache.files=partial,dropcacheonclose=true" # Mergerfs mount options
 
 # Create directories
-mkdir -p $APPDATA $RCLONEUPLOAD $RCLONEMOUNT $MERGERFSMOUNT
+mkdir -p $APPDATA $RCLONEUPLOAD $RCLONEMOUNT $MERGERFSMOUNT $CACHEDIR
 
 # Check if script is already running
 echo "==== STARTING MOUNT SCRIPT ===="
 echo "$(date "+%d/%m/%Y %T") INFO: Checking if script is already running"
-if [ -f "$LOCKFILE" ]; then
+if [[ -f "$LOCKFILE" ]]; then
     echo "SUCCESS: $(date "+%d/%m/%Y %T") - Check Passed! Your Cloud Drive is already mounted"
     exit
 else
-    touch "$LOCKFILE"
+    touch $LOCKFILE
 fi
 
 # Check if rclone mount already created
-if [ -n "$(ls -A $RCLONEMOUNT)" ]; then
+if [[ -n "$(ls -A $RCLONEMOUNT)" ]]; then
     echo "$(date "+%d/%m/%Y %T") WARN: Rclone is mounted"
 else
-    echo "$(date "+%d/%m/%Y %T") INFO: Mounting Rclone, please wait..."
-    # Rclone mount command and flags
-    rclone mount \
-    --log-level INFO \
-    --allow-other \
-    --dir-cache-time 1000h \
-    --buffer-size 256M \
-    --drive-chunk-size 512 \
-    --vfs-read-chunk-size 128M \
-    --vfs-read-chunk-size-limit off \
-    --vfs-cache-mode writes \
-    $REMOTE: $RCLONEMOUNT &
-    
+    if [[ "$USECACHE" = false ]]; then
+        echo "$(date "+%d/%m/%Y %T") INFO: Mounting Rclone without cache, please wait..."
+        # Rclone not using cache drive
+        rclone mount \
+        --uid=1000 --gid=1000 --umask=002 \
+        --log-level INFO \
+        --poll-interval 15s \
+        --allow-other \
+        --drive-pacer-min-sleep 1ms \
+        --dir-cache-time 1000h \
+        --vfs-cache-mode writes \
+        $REMOTE: $RCLONEMOUNT &
+    else
+        echo "$(date "+%d/%m/%Y %T") INFO: Mounting Rclone using cache, please wait..."
+        # Rclone using cache drive
+        rclone mount \
+        --uid=1000 --gid=1000 --umask=002 \
+        --log-level INFO \
+        --poll-interval 15s \
+        --allow-other \
+        --drive-pacer-min-sleep 1ms \
+        --dir-cache-time 1000h \
+        --vfs-cache-mode full \
+        --cache-dir=$CACHEDIR \
+        --vfs-cache-max-size $CACHESIZE \
+        --vfs-cache-max-age $CACHEMAXAGE \
+        $REMOTE: $RCLONEMOUNT &
+    fi
     # Check if mount successful
     echo "$(date "+%d/%m/%Y %T") INFO: Mount in progress please wait..."
     sleep 5
     echo "$(date "+%d/%m/%Y %T") INFO: Proceeding..."
-    if [ "$(ls -A $RCLONEMOUNT)" ]; then
+    if [[ "$(ls -A $RCLONEMOUNT)" ]]; then
         echo "$(date "+%d/%m/%Y %T") SUCCESS: Check Passed! remote mounted"
     else
         echo "$(date "+%d/%m/%Y %T") ERROR: Check Failed! please check your configuration"
-        rm -f "$LOCKFILE"
+        rm -f $LOCKFILE
         exit
     fi
 fi
 
 # Check media share mount
-if [ -n "$(ls -A $MERGERFSMOUNT)" ]; then
+if [[ -n "$(ls -A $MERGERFSMOUNT)" ]]; then
     echo "$(date "+%d/%m/%Y %T") SUCCESS: Check Passed! Your Cloud Drive is mounted"
 else
     # Check if mergerfs is installed
-    if [ -x "$(command -v mergerfs)" ]; then
+    if [[ -x "$(command -v mergerfs)" ]]; then
         echo "$(date "+%d/%m/%Y %T") INFO: Mergerfs found, Proceeding..."
     else
+        echo "$(date "+%d/%m/%Y %T") INFO: Installing Mergerfs, please wait..."
         mkdir -p $APPDATA/mergerfs
         docker run -v $APPDATA/mergerfs:/build --rm trapexit/mergerfs-static-build >/dev/null
         mv $APPDATA/mergerfs/mergerfs /bin
-        exit
+        sleep 5
+        if [[ -x "$(command -v mergerfs)" ]]; then
+            echo "$(date "+%d/%m/%Y %T") INFO: Mergerfs installed, Proceeding..."
+        else
+            echo "$(date "+%d/%m/%Y %T") ERROR: Mergerfs failed to install. Check your configuration"
+            fusermount -uz $RCLONEMOUNT >/dev/null
+            rm -f $LOCKFILE
+            exit
+        fi
     fi
     # Create mergerfs mount
     mergerfs $RCLONEUPLOAD:$RCLONEMOUNT $MERGERFSMOUNT -o $MERGERFSOPTIONS
     
     # Check if mergerfs mounted correctly
-    if [ -n "$(ls -A $MERGERFSMOUNT)" ]; then
+    sleep 3
+    if [[ -n "$(ls -A $MERGERFSMOUNT)" ]]; then
         echo "$(date "+%d/%m/%Y %T") SUCCESS: Check Passed! Your Cloud Drive is mounted"
         echo "==== REMOTE DIRECTORIES ===="
         rclone lsd $REMOTE:

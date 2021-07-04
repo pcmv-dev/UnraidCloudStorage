@@ -48,7 +48,7 @@ else
         echo "$(date "+%d/%m/%Y %T") INFO: Mounting Rclone without cache, please wait..."
         # Rclone not using cache drive
         rclone mount \
-        --uid=1000 --gid=1000 --umask=002 \
+        --uid=99 --gid=100 --umask=002 \
         --log-level INFO \
         --poll-interval 15s \
         --allow-other \
@@ -60,7 +60,7 @@ else
         echo "$(date "+%d/%m/%Y %T") INFO: Mounting Rclone using cache, please wait..."
         # Rclone using cache drive
         rclone mount \
-        --uid=1000 --gid=1000 --umask=002 \
+        --uid=99 --gid=100 --umask=002 \
         --log-level INFO \
         --poll-interval 15s \
         --allow-other \

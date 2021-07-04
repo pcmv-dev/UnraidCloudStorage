@@ -39,7 +39,7 @@ LOGFILE="$APPDATA/rclone-upload.log" # Log file for upload
 
 # Check if script is already running
 echo " ==== STARTING UPLOAD SCRIPT ===="
-if [ -f "$LOCKFILE" ]; then
+if [[ -f "$LOCKFILE" ]]; then
     echo "$(date "+%d/%m/%Y %T") WARN: Upload already in progress! Script will exit..."
     exit
 else
@@ -47,7 +47,7 @@ else
 fi
 
 # Check if Rclone/Mergerfs mount created
-if [ -n "$(ls -A $MERGERFSMOUNT)" ]; then
+if [[ -n "$(ls -A $MERGERFSMOUNT)" ]]; then
     echo "$(date "+%d/%m/%Y %T") SUCCESS: Check Passed! Your Cloud Drive is mounted, proceeding with upload"
     rm -f $LOGFILE >/dev/null
 else
@@ -57,11 +57,11 @@ else
 fi
 
 # Rotating serviceaccount.json file if using Service Accounts
-if [ $USESERVICEACCOUNT == 'Y' ]; then
+if [[ $USESERVICEACCOUNT == 'Y' ]]; then
     cd $APPDATA
     COUNTERNUM=$(find -name 'counter*' | cut -c 11,12)
     CONTERCHECK="1"
-    if [ "$COUNTERNUM" -ge "$CONTERCHECK" ];then
+    if [[ "$COUNTERNUM" -ge "$CONTERCHECK" ]];then
         echo "$(date "+%d/%m/%Y %T") INFO: Counter file found for ${UPLOADREMOTE}."
     else
         echo "$(date "+%d/%m/%Y %T") INFO: No counter file found for ${UPLOADREMOTE}. Creating counter_1."
@@ -76,20 +76,16 @@ else
 fi
 
 # Rclone upload flags
-echo "==== RCLONE DEBUG ===="
-rclone_move() {
+RCLONE_MOVE() {
     RCLONE_COMMAND=$(
     rclone move $RCLONEUPLOAD/ $UPLOADREMOTE: $SERVICEACCOUNT -vP \
+    --config=$RCLONECONF \
     --user-agent=$UPLOADREMOTE \
-    --log-file=$LOGFILE \
     --stats=9999m \
-    --buffer-size 512M \
-    --drive-chunk-size 512M \
-    --use-mmap \
-    --tpslimit 8 \
-    --checkers 8 \
-    --transfers 4 \
+    --drive-chunk-size 256M \
+    --min-age 30s \
     --order-by modtime,ascending \
+    --exclude-if-present .ignore \
     --exclude downloads/** \
     --exclude .Recycle.Bin/** \
     --exclude *fuse_hidden* \
@@ -97,17 +93,16 @@ rclone_move() {
     --exclude .recycle** \
     --exclude *.backup~* \
     --exclude *.partial~*  \
-    --delete-empty-src-dirs \
-    --bwlimit $UPLOADLIMIT \
-    --drive-stop-on-upload-limit \
-    --min-age 10m
+    --delete-empty-src-dirs
     )
+    echo "==== RCLONE DEBUG ===="
+    echo "DATE: $(date)"
     echo "$RCLONE_COMMAND"
+    echo "======================"
 }
-echo "======================"
-rclone_move
+RCLONE_MOVE | tee -a $LOGFILE
 
-if [ "$DISCORD_WEBHOOK_URL" != "" ]; then
+if [[ "$DISCORD_WEBHOOK_URL" != "" ]]; then
     
     RCLONE_SANI_COMMAND="$(echo $RCLONE_COMMAND | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g')" # Remove all escape sequences
     
@@ -172,14 +167,14 @@ if [ "$DISCORD_WEBHOOK_URL" != "" ]; then
         curl -H "Content-Type: application/json" -d "$NOTIFICATION_DATA" $DISCORD_WEBHOOK_URL
     }
     
-    if [ "$TRANSFERRED_AMOUNT" != "0" ]; then
+    if [[ "$TRANSFERRED_AMOUNT" != "0" ]]; then
         SEND_NOTIFICATION
     fi
     
 fi
 
 # Update Service Account counter
-if [  $USESERVICEACCOUNT == 'Y' ]; then
+if [[  $USESERVICEACCOUNT == 'Y' ]]; then
     if [ "$COUNTERNUM" == "$SERVICEACCOUNTNUM" ];then
         rm $APPDATA/counter_*
         touch $APPDATA/counter_1
